@@ -65,6 +65,7 @@ fileProxy.get('state'); // => 'authorizing'
 fileProxy.get('state'); // => 'uploading'
 fileProxy.get('progress'); // => 0.2
 // Some time later...
+fileProxy.get('state'); // => 'done'
 fileProxy.get('url'); // => 'http://s3.amazonaws.com/bucket/file.png'
 ```
 
