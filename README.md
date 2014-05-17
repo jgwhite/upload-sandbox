@@ -1,4 +1,4 @@
-# File Proxy
+# Upload Sandbox
 
 An example of implementing direct upload to S3 in an Ember app.
 
@@ -7,16 +7,18 @@ An example of implementing direct upload to S3 in an Ember app.
 - Ember app with FileProxy object
 - Rack app with AWS credentials
 
-## FileProxy
+## File Proxy Mixins
 
-A class that wraps javascript file objects and extends their interface.
+**Problem:** We want to extend the interface of native javascript `File` objects.
 
-For example, we might have `ObjectURLFileProxy`, whose job is to wrap a file
-and provide a `url` property by means of the native `URL.createObjectURL`
-method.
+**Solution:** Use Ember’s `ObjectProxy` and some specialised mixins.
+
+### Example: ObjectURLMixin
+
+Provides a computed `url` property by means of `URL.createObjectURL`.
 
 ```js
-var ObjectURLFileProxy = Ember.ObjectProxy.extend({
+var ObjectURLMixin = Ember.Mixin.create({
   url: function() {
     var file = this.get('content');
     if (file) {
@@ -25,12 +27,16 @@ var ObjectURLFileProxy = Ember.ObjectProxy.extend({
   }.property('content').readOnly()
 });
 
+var FileProxy = Ember.ObjectProxy.extend(ObjectURLMixin);
+
 // Assuming file has been received from a file input or via drag/drop
-var fileProxy = ObjectURLFileProxy.create({ content: file });
+var fileProxy = FileProxy.create({ content: file });
 fileProxy.get('url'); // => 'blob:...'
 ```
 
-This concept leads naturally to an S3UploadFileProxy. Given a file, its job is:
+### Example: S3UploadMixin
+
+When the content of the proxy changes to a new file (and/or on `init`), it would:
 
 1. Fetch a signed aws authorization from the API
 2. Post the file to the desired bucket/object
@@ -41,19 +47,23 @@ This allows us to pass an object around the system that automatically gains a
 `url` property at some later point in time. Bindings take care of the rest.
 
 ```js
-var S3UploadFileProxy = Ember.ObjectProxy.extend({
+var S3UploadMixin = Ember.Mixin.create({
+  state: null,
+  progress: null,
   url: null,
 
   uploadFile: function() {
-    // Fetch authorization
-    // Upload file
-    // Update progress
-    // Set url property
-  }.on('init')
+    // TODO Fetch authorization
+    // TODO Upload file
+    // TODO Update progress
+    // TODO Set url property
+  }.observes('content').on('init')
 });
 
+var FileProxy = Ember.ObjectProxy.extend(S3UploadMixin);
+
 // Assuming file has been received from a file input or via drag/drop
-var fileProxy = S3UploadFileProxy.create({ content: file });
+var fileProxy = FileProxy.create({ content: file });
 fileProxy.get('state'); // => 'authorizing'
 // Some time later...
 fileProxy.get('state'); // => 'uploading'
@@ -62,8 +72,16 @@ fileProxy.get('progress'); // => 0.2
 fileProxy.get('url'); // => 'http://s3.amazonaws.com/bucket/file.png'
 ```
 
-The interface above is bindings/observer friendly, but we may also want a
-promise-style interface. TBD
+The above is bindings/observer friendly, but a promise-driven interface may
+also be desirable.
+
+```js
+fileProxy.upload().then(function(url) {
+  // ...
+}, function(error) {
+  // ...
+});
+```
 
 ## API App
 
