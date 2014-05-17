@@ -47,11 +47,12 @@ var S3UploadMixin = Ember.Mixin.create({
   progress: null,
   url: null,
 
-  uploadFile: function() {
+  upload: function() {
     // TODO Fetch authorization
     // TODO Upload file
     // TODO Update progress
     // TODO Set url property
+    // TODO Return a promise?
   }.observes('content').on('init')
 });
 
