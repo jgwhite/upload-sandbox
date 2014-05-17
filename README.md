@@ -80,6 +80,11 @@ fileProxy.upload().then(function(url) {
 });
 ```
 
+#### TODO
+
+- *How does a FileProxy+S3UploadMixin fetch authorizations? Inject an API service?*
+- *How complex would the `progress` object need to be?*
+
 ## API App
 
 The API needs to provide an authentication mechanism and the ability to
