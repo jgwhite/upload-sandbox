@@ -1,11 +1,6 @@
 # Upload Sandbox
 
-An example of implementing direct upload to S3 in an Ember app.
-
-## Architecture
-
-- Ember app with FileProxy object
-- Rack app with AWS credentials
+Thoughts on implementing direct upload to S3 in an Ember app.
 
 ## File Proxy Mixins
 
